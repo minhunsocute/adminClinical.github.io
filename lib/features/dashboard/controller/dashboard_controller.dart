@@ -1,12 +1,11 @@
 import 'package:admin_clinical/constants/app_decoration.dart';
 import 'package:admin_clinical/features/clinical_room/screens/clinical_room_screen.dart';
 import 'package:admin_clinical/features/doctor/screens/doctor_main_screen.dart';
-import 'package:admin_clinical/features/form/screens/medical_form_screen.dart';
 import 'package:admin_clinical/features/invoice/screens/invoice_view_screen.dart';
-import 'package:admin_clinical/features/invoice/screens/verify_invoice_information_screen.dart';
 import 'package:admin_clinical/features/medicine/screens/medicine_screen.dart';
 import 'package:admin_clinical/features/overview/screens/overview_screen.dart';
-import 'package:admin_clinical/features/patient/screens/list_patients_screen.dart';
+import 'package:admin_clinical/features/patient/screens/patient_detail_screen.dart';
+import 'package:admin_clinical/features/patient/screens/patient_main_screen.dart';
 import 'package:admin_clinical/features/settings/screen/setting_main_screen.dart';
 import 'package:admin_clinical/services/data_service/data_service.dart';
 import 'package:flutter/material.dart';
@@ -73,11 +72,11 @@ class DashboardController extends GetxController {
           .toList();
 
   late final List<Widget> listPage = [
+    // PatientDetailScreen(),
     OverviewScreen(),
-    ListPatientScreen(),
+    PatientMainScreen(),
     DoctorMainScreen(),
     InvoiceView(),
-    MedicalFormScreen(),
     ClinicalRoom(),
     MedicineScreen(),
     const SettingMainScreen(),

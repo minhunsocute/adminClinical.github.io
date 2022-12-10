@@ -3,6 +3,7 @@ import 'package:admin_clinical/features/overview/widgets/dismissible_table_row.d
 import 'package:admin_clinical/features/patient/screens/patient_screen.dart';
 import 'package:admin_clinical/models/medicine.dart';
 import 'package:admin_clinical/models/patient.dart';
+import 'package:admin_clinical/models/service.dart';
 import 'package:admin_clinical/routes/name_route.dart';
 import 'package:admin_clinical/services/data_service/patient_service.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +122,8 @@ class PatientListRow extends StatelessWidget {
     this.avt,
     required this.payment,
     this.removeEntries,
+    this.onClick,
+    this.onSelectedAction,
   });
   final String? avt;
   final String name;
@@ -131,11 +134,12 @@ class PatientListRow extends StatelessWidget {
   final String status;
   final String payment;
   final Color color;
+  final Function(String)? onSelectedAction;
+  final Function()? onClick;
   final Function(String)? removeEntries;
 
   @override
   Widget build(BuildContext context) {
-    print(avt);
     final Map<String, String> data = {
       'Patient Name': name,
       'Id': id,
@@ -153,9 +157,7 @@ class PatientListRow extends StatelessWidget {
       id: id,
       remove: removeEntries ?? (_) {},
       child: InkWell(
-        onTap: color == Colors.white
-            ? () => Get.toNamed(PageName.patientDetailScreen)
-            : null,
+        onTap: color == Colors.white ? onClick : null,
         borderRadius: AppDecoration.primaryRadiusBorder,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 5),
@@ -203,8 +205,32 @@ class PatientListRow extends StatelessWidget {
                   )
                   .toList(),
               (color == Colors.white)
-                  ? InkWell(
-                      onTap: () {},
+                  ? PopupMenuButton<String>(
+                      onSelected: (value) {
+                        onSelectedAction!(value);
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem<String>(
+                          value: 'Detail',
+                          child: Text('Detail'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Edit',
+                          child: Text('Edit'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Delete',
+                          child: Text('Delete'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Generate Invoice',
+                          child: Text('Generate Invoice'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Examination',
+                          child: Text('Examination'),
+                        ),
+                      ],
                       child: const Icon(
                         Icons.more_vert_outlined,
                       ),
@@ -227,27 +253,18 @@ class PatientListRow extends StatelessWidget {
 class ServiceTableRow extends StatelessWidget {
   const ServiceTableRow({
     super.key,
-    required this.name,
-    required this.id,
     required this.color,
-    required this.departmentID,
-    required this.isSelected,
     this.onCheckButtonChange,
+    required this.service,
+    required this.isSelected,
   });
-  final String name;
-  final String id;
-  final String departmentID;
-  final bool isSelected;
+  final Service service;
   final Color color;
-  final Function(bool)? onCheckButtonChange;
+  final Function(bool, String)? onCheckButtonChange;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> data = {
-      'name': name,
-      'id': id,
-      'departmentID': departmentID,
-    };
     return InkWell(
       onTap: color == Colors.white ? () {} : null,
       borderRadius: AppDecoration.primaryRadiusBorder,
@@ -267,41 +284,60 @@ class ServiceTableRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(width: 5),
-            color == Colors.white
-                ? Expanded(
-                    child: Checkbox(
-                      value: isSelected,
-                      onChanged: (value) {
-                        if (value != null) {
-                          onCheckButtonChange!(value);
-                        }
-                      },
-                    ),
-                  )
-                : const Expanded(
-                    child: Text(
-                      'Select',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-            const SizedBox(width: 5),
-            ...data.entries
-                .map(
-                  (e) => Expanded(
-                    child: Text(
-                      e.value,
-                      style: const TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                )
-                .toList(),
+            Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: (value) {
+                    if (value != null) {
+                      onCheckButtonChange!(value, service.id ?? " ");
+                    }
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                service.id ?? "ID",
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                service.name ?? "Name",
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                service.departmentId ?? "departmentId",
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                service.description.toString(),
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
             const SizedBox(width: 5),
           ],
         ),
@@ -313,35 +349,16 @@ class ServiceTableRow extends StatelessWidget {
 class ResultServiceTableRow extends StatelessWidget {
   const ResultServiceTableRow({
     super.key,
-    required this.name,
-    required this.id,
     required this.color,
-    required this.departmentID,
-    required this.amount,
-    required this.departmentCharge,
-    required this.pricePerUnit,
-    required this.amountPrice,
+    required this.service,
+    required this.deleteServiceChoice,
   });
-  final String name;
-  final String id;
-  final String departmentID;
-  final String amount;
-  final String departmentCharge;
+  final Function(bool, String) deleteServiceChoice;
   final Color color;
-  final String pricePerUnit;
-  final String amountPrice;
+  final Service service;
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> data = {
-      'name': name,
-      'id': id,
-      'departmentID': departmentID,
-      'departmentCharge': departmentCharge,
-      'amount': amount,
-      'pricePerUnit': pricePerUnit,
-      'amountPrice': amountPrice,
-    };
     return InkWell(
       onTap: color == Colors.white ? () {} : null,
       borderRadius: AppDecoration.primaryRadiusBorder,
@@ -353,42 +370,68 @@ class ResultServiceTableRow extends StatelessWidget {
           borderRadius: AppDecoration.primaryRadiusBorder,
           boxShadow: [
             BoxShadow(
-                offset: const Offset(0, 0.5),
-                color: Colors.grey[200]!,
-                blurRadius: 2)
+              offset: const Offset(0, 0.5),
+              color: Colors.grey[200]!,
+              blurRadius: 2,
+            )
           ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(width: 5),
-            ...data.entries
-                .map(
-                  (e) => Expanded(
-                    child: Text(
-                      e.value,
-                      style: const TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                )
-                .toList(),
+            ...service.toMap().entries.map(
+              (e) {
+                int flex = 1;
+                if (e.key.toString() == 'thumbnails') {
+                  return const SizedBox();
+                }
+                if (e.key.toString() == '_id') {
+                  flex = 2;
+                }
+                return Expanded(
+                  flex: flex,
+                  child: e.key.toString() != 'name'
+                      ? Text(
+                          e.value.toString(),
+                          style: const TextStyle(
+                              color: Colors.blueGrey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              backgroundImage:
+                                  AssetImage('images/chichthuoc.png'),
+                              radius: 15,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              e.value.toString(),
+                              style: const TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                );
+              },
+            ).toList(),
             const SizedBox(width: 5),
-            color == Colors.white
-                ? ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primarySecondColor),
-                    onPressed: () {},
-                    child: const Icon(
-                      Icons.close_outlined,
-                      color: Colors.white,
-                    ),
-                  )
-                : const SizedBox(
-                    width: 52,
-                  ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primarySecondColor),
+              onPressed: () => deleteServiceChoice(false, service.id ?? " "),
+              child: const Icon(
+                Icons.close_outlined,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(width: 5),
           ],
         ),
@@ -398,25 +441,17 @@ class ResultServiceTableRow extends StatelessWidget {
 }
 
 class MedicineTableRow extends StatelessWidget {
-  MedicineTableRow({
+  const MedicineTableRow({
     super.key,
     required this.color,
     this.onCheckButtonChange,
     required this.medicine,
+    required this.isSelected,
   });
   final Medicine medicine;
   final Color color;
   final Function(bool, String)? onCheckButtonChange;
-
-//   ValueBuilder<bool>(
-//    initialValue: false,
-//    builder: (value, update) => Switch(
-//    value: value,
-//    onChanged: (flag) {
-//       update( flag );
-//    },),
-//    onUpdate: (value) => print("Value updated: $value"),
-//  ),
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -439,35 +474,22 @@ class MedicineTableRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(width: 5),
-            color == Colors.white
-                ? Expanded(
-                    child: ValueBuilder<bool?>(
-                        initialValue: false,
-                        onUpdate: (value) => print("Value updated: $value"),
-                        builder: (value, update) {
-                          return Checkbox(
-                            value: value,
-                            onChanged: (value) {
-                              update(value);
-                              if (value != null) {
-                                onCheckButtonChange!(value, medicine.id);
-                              }
-                            },
-                          );
-                        }),
-                  )
-                : const Expanded(
-                    child: Text(
-                      'Select',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-            const SizedBox(width: 5),
             Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: (value) {
+                    if (value != null) {
+                      onCheckButtonChange!(value, medicine.id);
+                    }
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
               child: Text(
                 medicine.id,
                 style: const TextStyle(
@@ -477,6 +499,7 @@ class MedicineTableRow extends StatelessWidget {
               ),
             ),
             Expanded(
+              flex: 1,
               child: Text(
                 medicine.name,
                 style: const TextStyle(
@@ -486,8 +509,29 @@ class MedicineTableRow extends StatelessWidget {
               ),
             ),
             Expanded(
+              flex: 1,
               child: Text(
-                medicine.provider,
+                medicine.type,
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                medicine.unit,
+                style: const TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                medicine.amount.toString(),
                 style: const TextStyle(
                     color: Colors.blueGrey,
                     fontSize: 14,
@@ -507,7 +551,9 @@ class ResultMedicineTableRow extends StatelessWidget {
     super.key,
     required this.color,
     required this.medicine,
+    required this.deleteMedicineChoice,
   });
+  final Function(bool, String) deleteMedicineChoice;
   final Color color;
   final Medicine medicine;
 
@@ -534,35 +580,58 @@ class ResultMedicineTableRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(width: 5),
-            ...medicine
-                .toMap()
-                .entries
-                .map(
-                  (e) => Expanded(
-                    child: Text(
-                      e.value.toString(),
-                      style: const TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                )
-                .toList(),
+            ...medicine.toJson().entries.map(
+              (e) {
+                int flex = 1;
+                if (e.key.toString() == 'thumbnails') {
+                  return const SizedBox();
+                }
+                if (e.key.toString() == '_id') {
+                  flex = 2;
+                }
+                return Expanded(
+                  flex: flex,
+                  child: e.key.toString() != 'name'
+                      ? Text(
+                          e.value.toString(),
+                          style: const TextStyle(
+                              color: Colors.blueGrey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(medicine.thumbnails),
+                              radius: 15,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              e.value.toString(),
+                              style: const TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                );
+              },
+            ).toList(),
             const SizedBox(width: 5),
-            color == Colors.white
-                ? ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primarySecondColor),
-                    onPressed: () {},
-                    child: const Icon(
-                      Icons.close_outlined,
-                      color: Colors.white,
-                    ),
-                  )
-                : const SizedBox(
-                    width: 52,
-                  ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primarySecondColor),
+              onPressed: () => deleteMedicineChoice(false, medicine.id),
+              child: const Icon(
+                Icons.close_outlined,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(width: 5),
           ],
         ),

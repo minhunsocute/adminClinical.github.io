@@ -2,7 +2,12 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:admin_clinical/models/health_record.dart';
+import 'package:admin_clinical/services/data_service/health_record_service.dart';
+import 'package:admin_clinical/services/data_service/invoice_service.dart';
+import 'package:admin_clinical/services/data_service/medicine_service.dart';
 import 'package:admin_clinical/services/data_service/patient_service.dart';
+import 'package:admin_clinical/services/data_service/service_data_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -14,18 +19,39 @@ import '../../models/doctor.dart';
 class DataService extends GetxController {
   DataService._privateConstructor();
   static final DataService instance = DataService._privateConstructor();
+
+  RxList<int> checkFetchData = <int>[].obs;
+
   RxList<Doctor1> listDoctor = <Doctor1>[].obs;
   RxList<Department> listDepartMent = <Department>[].obs;
 
   fetchAllData() async {
     if (listDoctor.value.isEmpty) {
-      fetchAllDoctor((value) => listDoctor.value = value);
+      fetchAllDoctor((value) {
+        checkFetchData.value.add(1);
+        listDoctor.value = value;
+      });
     }
     if (listDepartMent.value.isEmpty) {
-      fetchAllDeparMent((value) => listDepartMent.value = value);
+      fetchAllDeparMent((value) {
+        checkFetchData.value.add(1);
+        listDepartMent.value = value;
+      });
     }
     if (PatientService.listPatients.isEmpty) {
       PatientService.fetchAllPatientData();
+    }
+    if (MedicineService.instance.listMedicine.isEmpty) {
+      MedicineService.instance.fetchAllMedicineData();
+    }
+    if (HealthRecordService.listHealthRecord.isEmpty) {
+      HealthRecordService.fetchAllHealthRecordData();
+    }
+    if (InvoiceService.instance.listInvoice.isEmpty) {
+      InvoiceService.instance.fetchAllDataInvoice();
+      if (ServiceDataService.instance.service.isEmpty) {
+        ServiceDataService.instance.fetchAllDataService();
+      }
     }
   }
 
@@ -80,8 +106,8 @@ class DataService extends GetxController {
     }
   }
 
-  void deleteDoctor(BuildContext context, Function(List<Doctor1>) callBack,
-      {required String id}) async {
+  Future<bool> deleteDoctor(BuildContext context, {required String id}) async {
+    bool result = false;
     try {
       print("Delete doctor function is called");
       http.Response res = await http.post(
@@ -97,15 +123,17 @@ class DataService extends GetxController {
         response: res,
         context: context,
         onSuccess: () {
-          callBack(listDoctor.value);
+          // callBack(listDoctor.value);
+          result = true;
         },
       );
     } catch (e) {
-//
+      result = false;
     } finally {
-      listDoctor.value.removeWhere((item) => item.iDBS == id);
-      callBack(listDoctor.value);
+      // listDoctor.value.removeWhere((item) => item.iDBS == id);
+      // callBack(listDoctor.value);
     }
+    return result;
   }
 
   Future<List<Doctor1>> searchDoctor(
@@ -139,7 +167,8 @@ class DataService extends GetxController {
     return doctorList;
   }
 
-  editDoctor(BuildContext context, Function(List<Doctor1>) callBack,
+  Future<Doctor1?> editDoctor(BuildContext context,
+      // Function(List<Doctor1>) callBack,
       {required String id,
       required String name,
       required String address,
@@ -149,6 +178,7 @@ class DataService extends GetxController {
       required String description,
       required DateTime dateBorn,
       required int experience}) async {
+    Doctor1? result;
     try {
       print("Edit Doctor function is called");
       var timeStamp = dateBorn.millisecondsSinceEpoch;
@@ -175,30 +205,17 @@ class DataService extends GetxController {
         response: res,
         context: context,
         onSuccess: () async {
-          callBack(listDoctor.value);
+          result = Doctor1.fromJson(jsonDecode(res.body));
         },
       );
     } catch (e) {
-      //
-    } finally {
-      final index =
-          listDoctor.value.indexWhere((element) => element.iDBS == id);
-      listDoctor.value[index] = Doctor1(
-        name: name,
-        address: address,
-        avt: av,
-        dateBorn: dateBorn,
-        departMent: departMent,
-        experience: experience,
-        iDBS: listDoctor.value[index].iDBS,
-        phoneNumber: phoneNumber,
-        description: description,
-      );
-      callBack(listDoctor.value);
-    }
+      result = null;
+    } finally {}
+    return result;
   }
 
-  void insertNewDoctor(BuildContext context, Function(List<Doctor1>) callBack,
+  Future<Doctor1?> insertNewDoctor(BuildContext context,
+      //  Function(List<Doctor1>) callBack,
       {required String name,
       required String address,
       required String phoneNumber,
@@ -209,6 +226,7 @@ class DataService extends GetxController {
       required String password,
       required DateTime dateBorn,
       required int experience}) async {
+    Doctor1? result;
     try {
       print("Insert new Doctor function is called");
       var timeStamp = dateBorn.millisecondsSinceEpoch;
@@ -238,25 +256,12 @@ class DataService extends GetxController {
         response: res,
         context: context,
         onSuccess: () async {
-          callBack(listDoctor.value);
+          result = Doctor1.fromJson(jsonDecode(res.body));
         },
       );
     } catch (e) {
-      // print('err: ${e.toString()}');
-    } finally {
-      // ignore: invalid_use_of_protected_member
-      listDoctor.value.add(Doctor1(
-        name: name,
-        address: address,
-        avt: av,
-        dateBorn: dateBorn,
-        departMent: departMent,
-        experience: experience,
-        iDBS: null,
-        phoneNumber: phoneNumber,
-        description: description,
-      ));
-      callBack(listDoctor.value);
-    }
+      result = null;
+    } finally {}
+    return result;
   }
 }

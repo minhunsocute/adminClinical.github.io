@@ -1,17 +1,14 @@
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:admin_clinical/constants/utils.dart';
-import 'package:admin_clinical/features/doctor/screens/doctor_main_screen.dart';
-import 'package:admin_clinical/features/form/widgets/form_card.dart';
 import 'package:admin_clinical/features/patient/controller/patient_page_controller.dart';
+import 'package:admin_clinical/main.dart';
 import 'package:admin_clinical/models/patient.dart';
-import 'package:admin_clinical/services/data_service/patient_service.dart';
-import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_decoration.dart';
@@ -34,12 +31,13 @@ class AddPatientDialog extends StatelessWidget {
   late var statusCode = dropDownItemStatus.first.obs;
   final patientPageController = Get.find<PatientPageController>();
 
-  TextEditingController firstNameController = TextEditingController();
-  TextEditingController lastNameController = TextEditingController();
+  TextEditingController fullNameController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController symptomController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
+  DateTime currentDateTime = DateTime.now();
 
   final formKey = GlobalKey<FormState>();
 
@@ -52,11 +50,12 @@ class AddPatientDialog extends StatelessWidget {
     final response = await patientPageController.addPatientToDataBase(
       Patient(
         id: '',
-        name: "${firstNameController.text} ${lastNameController.text}",
+        name: fullNameController.text,
         gender: genderCode.value,
+        email: emailController.text,
         address: locationController.text,
-        dob: '22-11-2002',
-        phoneNumber: "${phoneCode.value}  ${phoneNumberController.text}",
+        dob: dobController.text,
+        phoneNumber: "${phoneCode.value} ${phoneNumberController.text}",
         status: statusCode.value,
         avt: result,
         symptom: symptomController.text,
@@ -182,34 +181,16 @@ class AddPatientDialog extends StatelessWidget {
                         ),
                         Utils.spaceSizeBoxAddPatientDialog,
                         Utils.spaceSizeBoxAddPatientDialog,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            CustomTextFormField(
-                              controller: firstNameController,
-                              width: width * 0.4,
-                              title: 'First Name',
-                              hint: 'Enter your first Name',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Field can not be emptied";
-                                }
-                                return null;
-                              },
-                            ),
-                            const Spacer(),
-                            CustomTextFormField(
-                              width: width * 0.4,
-                              title: 'Last Name',
-                              hint: 'Enter your last name',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Field can not be emptied";
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
+                        CustomTextFormField(
+                          controller: fullNameController,
+                          title: 'First Name',
+                          hint: 'Enter your full Name',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "This Field can not be emptied";
+                            }
+                            return null;
+                          },
                         ),
                         Utils.spaceSizeBoxAddPatientDialog,
                         CustomTextFormField(
@@ -287,13 +268,91 @@ class AddPatientDialog extends StatelessWidget {
                               flex: 2,
                               fit: FlexFit.tight,
                               child: CustomTextFormField(
+                                readOnly: true,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "This Field can not be emptied";
                                   }
                                   return null;
                                 },
-                                controller: null,
+                                controller: dobController,
+                                onTap: () {
+                                  DateTime tempDateTime = DateTime.now();
+                                  Get.dialog(
+                                    Dialog(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.35,
+                                            maxWidth: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.3),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                  maxHeight:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .height *
+                                                          0.25),
+                                              child: CupertinoDatePicker(
+                                                onDateTimeChanged: (value) {
+                                                  tempDateTime = value;
+                                                },
+                                                initialDateTime: DateTime.now(),
+                                                maximumDate: DateTime.now(),
+                                                minimumDate:
+                                                    DateTime(1950, 1, 1),
+                                                mode: CupertinoDatePickerMode
+                                                    .date,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.primaryColor,
+                                                minimumSize: Size(
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.2,
+                                                  50,
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Get.back(result: tempDateTime);
+                                              },
+                                              child: const Text(
+                                                'Select',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ).then((value) {
+                                    if (value != null) {
+                                      currentDateTime = value;
+                                      dobController.text = DateFormat()
+                                          .add_yMMMMd()
+                                          .format(currentDateTime);
+                                    }
+                                  });
+                                },
                                 title: 'Date Of Birth',
                                 hint: 'Enter your your date of birth',
                               ),

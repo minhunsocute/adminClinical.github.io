@@ -55,16 +55,17 @@ class SuccessDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              SizedBox(
-                height: 80,
-                width: Get.mediaQuery.size.width * 0.7,
-                child: Text(
-                  title1,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    title1,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.blueGrey,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),
@@ -73,21 +74,22 @@ class SuccessDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                      onPressed: () => Get.back(result: true),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        alignment: Alignment.center,
-                        fixedSize: const Size(110, 50),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Yes',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ))
+                    onPressed: () => Get.back(result: true),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      alignment: Alignment.center,
+                      fixedSize: const Size(110, 50),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Yes',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  )
                 ],
               ),
               const SizedBox(height: 10),

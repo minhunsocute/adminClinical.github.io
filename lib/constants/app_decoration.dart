@@ -28,7 +28,20 @@ class AppDecoration {
     ),
     borderRadius: AppDecoration.primaryRadiusBorder,
   );
-
+  static final primaryDecorationContainer1 = BoxDecoration(
+    color: Colors.white,
+    border: Border.all(
+      color: Colors.grey,
+      width: 0.2,
+    ),
+    boxShadow: const [
+      BoxShadow(
+        color: Colors.black26,
+        blurRadius: 7.0,
+      )
+    ],
+    borderRadius: AppDecoration.primaryRadiusBorder,
+  );
   static const primaryPadding = EdgeInsets.all(15);
 }
 
@@ -55,10 +68,10 @@ class AppWidget {
       'label': 'Payment',
       'icon': Icons.payment_outlined,
     },
-    {
-      'label': 'Medical Form',
-      'icon': Icons.note_add_outlined,
-    },
+    // {
+    //   'label': 'Medical Form',
+    //   'icon': Icons.note_add_outlined,
+    // },
     {
       'label': 'Clinical Room',
       'icon': Icons.medical_services_outlined,

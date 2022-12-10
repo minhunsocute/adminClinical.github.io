@@ -2,39 +2,23 @@ import 'package:admin_clinical/features/form/widgets/patient_information_form.da
 import 'package:flutter/material.dart';
 
 class RecordInformationForm extends StatelessWidget {
-  RecordInformationForm({super.key});
-
-  final List<Map<String, String>> fakeData = [
-    {
-      'title': 'Record ID',
-      'content': '123',
-    },
-    {
-      'title': 'Date Create',
-      'content': '17/11/2022',
-    },
-    {
-      'title': 'Status',
-      'content': 'Not good',
-    },
-    {
-      'title': 'Department',
-      'content': 'Polyclinic',
-    },
-    {
-      'title': 'Doctor in Charge',
-      'content': 'Hoang Ankin',
-    },
-    {
-      'title': 'Total Money',
-      'content': '1.000.000',
-    },
-    {
-      'title': 'Note',
-      'content': 'Co dien bien nang',
-    },
-  ];
-
+  const RecordInformationForm({
+    super.key,
+    this.id,
+    this.dateCreate,
+    this.doctorInCharge,
+    this.totalMoney,
+    this.note,
+    this.status,
+    this.department,
+  });
+  final String? id;
+  final String? dateCreate;
+  final String? doctorInCharge;
+  final double? totalMoney;
+  final String? note;
+  final String? status;
+  final String? department;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -52,13 +36,24 @@ class RecordInformationForm extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              for (int i = 0; i < 3; i++)
-                Expanded(
-                  child: DisplayInformationWidget(
-                    content: fakeData.elementAt(i)['content'] as String,
-                    label: fakeData.elementAt(i)['title'] as String,
-                  ),
-                )
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Record ID',
+                  content: id ?? "Null",
+                ),
+              ),
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Date Create',
+                  content: dateCreate ?? "Null",
+                ),
+              ),
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Status',
+                  content: status ?? "Null",
+                ),
+              ),
             ],
           ),
         ),
@@ -66,28 +61,31 @@ class RecordInformationForm extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              for (int i = 3; i < 6; i++)
-                Flexible(
-                  child: DisplayInformationWidget(
-                    content: fakeData.elementAt(i)['content'] as String,
-                    label: fakeData.elementAt(i)['title'] as String,
-                  ),
-                )
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Department',
+                  content: department ?? "Null",
+                ),
+              ),
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Doctor in Charge',
+                  content: doctorInCharge ?? "Null",
+                ),
+              ),
+              Expanded(
+                child: DisplayInformationWidget(
+                  label: 'Total Money',
+                  content: totalMoney.toString(),
+                ),
+              ),
             ],
           ),
         ),
         Flexible(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              for (int i = 6; i < 7; i++)
-                Expanded(
-                  child: DisplayInformationWidget(
-                    content: fakeData.elementAt(i)['content'] as String,
-                    label: fakeData.elementAt(i)['title'] as String,
-                  ),
-                )
-            ],
+          child: DisplayInformationWidget(
+            label: 'Note',
+            content: note ?? "Null",
           ),
         ),
       ],
