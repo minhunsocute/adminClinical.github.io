@@ -6,7 +6,7 @@ import '../controllers/invoice_controller.dart';
 
 class InvoiceView extends StatelessWidget {
   InvoiceView({super.key});
-  final invoiceController = Get.put(InvoiceController());
+  final invoiceController = Get.find<InvoiceController>();
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -16,6 +16,7 @@ class InvoiceView extends StatelessWidget {
           height: constraints.maxHeight,
           width: constraints.maxWidth,
           child: PageView(
+            physics: const NeverScrollableScrollPhysics(),
             controller: invoiceController.pageController,
             children: invoiceController.pages,
           ),

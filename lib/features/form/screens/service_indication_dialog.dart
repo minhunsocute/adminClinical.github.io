@@ -1,5 +1,6 @@
 import 'package:admin_clinical/constants/app_decoration.dart';
 import 'package:admin_clinical/features/form/controller/medical_form_controller.dart';
+import 'package:admin_clinical/features/form/screens/medical_form_screen.dart';
 import 'package:admin_clinical/features/form/widgets/form_card.dart';
 import 'package:admin_clinical/features/form/widgets/patient_information_form.dart';
 import 'package:admin_clinical/features/form/widgets/record_information_form.dart';
@@ -16,7 +17,8 @@ import '../widgets/service_indication_widgets/result_indication.dart';
 class ServiceIndicationDialog extends StatelessWidget {
   ServiceIndicationDialog({super.key, required this.patient});
   final Patient patient;
-  final medicalFormController = Get.find<MedicalFormController>();
+  final medicalFormController =
+      Get.find<MedicalFormController>(tag: MedicalFormScreen.tagBuilder);
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -36,65 +38,63 @@ class ServiceIndicationDialog extends StatelessWidget {
                   child: Column(
                     children: [
                       Flexible(
-                        child: Row(
-                          children: [
-                            Flexible(
-                              flex: 2,
-                              child: FormCard(
-                                child: Column(
-                                  children: [
-                                    Flexible(
-                                        child: PatientInformationForm(
-                                      patient: patient,
-                                    )),
-                                    AppWidget.primaryDivider,
-                                    const SizedBox(height: 10),
-                                    Flexible(
-                                      child: medicalFormController
-                                                  .currentHealthRecord.value !=
-                                              null
-                                          ? RecordInformationForm(
-                                              dateCreate: DateFormat()
-                                                  .add_yMMMMd()
-                                                  .format(
-                                                    medicalFormController
-                                                        .currentHealthRecord
-                                                        .value!
-                                                        .dateCreate,
-                                                  ),
-                                              department: "Nguyen Thi Bich Nga",
-                                              doctorInCharge: AuthService
-                                                  .instance.user.name,
-                                              id: medicalFormController
-                                                  .currentHealthRecord
-                                                  .value!
-                                                  .id,
-                                              note: medicalFormController
-                                                  .currentHealthRecord
-                                                  .value!
-                                                  .note,
-                                              status: "Not good",
-                                              totalMoney: medicalFormController
-                                                  .totalMoney.value,
-                                            )
-                                          : const RecordInformationForm(),
-                                    ),
-                                  ],
-                                ),
+                        child: Row(children: [
+                          Flexible(
+                            flex: 2,
+                            child: FormCard(
+                              child: Column(
+                                children: [
+                                  Flexible(
+                                      child: PatientInformationForm(
+                                    patient: patient,
+                                  )),
+                                  AppWidget.primaryDivider,
+                                  const SizedBox(height: 10),
+                                  Flexible(
+                                    child: medicalFormController
+                                                .currentHealthRecord.value !=
+                                            null
+                                        ? RecordInformationForm(
+                                            dateCreate: DateFormat()
+                                                .add_yMMMMd()
+                                                .format(
+                                                  medicalFormController
+                                                      .currentHealthRecord
+                                                      .value!
+                                                      .dateCreate,
+                                                ),
+                                            department: "Nguyen Bang Bang",
+                                            doctorInCharge:
+                                                AuthService.instance.user.name,
+                                            id: medicalFormController
+                                                .currentHealthRecord.value!.id,
+                                            note: medicalFormController
+                                                .currentHealthRecord
+                                                .value!
+                                                .note,
+                                            status: "Not good",
+                                            totalMoney: medicalFormController
+                                                .totalMoney.value,
+                                          )
+                                        : const RecordInformationForm(),
+                                  ),
+                                ],
                               ),
                             ),
-                            Flexible(
-                              flex: 3,
-                              child: FormCard(
-                                child: ServiceIndicationForm(),
-                              ),
-                            )
-                          ],
-                        ),
+                          ),
+                          Flexible(
+                            flex: 3,
+                            child: FormCard(
+                              child: ServiceIndicationForm(),
+                            ),
+                          )
+                        ]),
                       ),
-                      Flexible(
+                      const Flexible(
                         child: FormCard(
-                          child: ResultIndication(),
+                          child: ResultIndication(
+                            tagBuilder: MedicalFormScreen.tagBuilder,
+                          ),
                         ),
                       ),
                     ],

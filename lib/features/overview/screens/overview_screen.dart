@@ -1,11 +1,11 @@
 import 'package:admin_clinical/constants/global_widgets/list_item.dart';
 import 'package:admin_clinical/features/overview/controller/overview_controller.dart';
 import 'package:admin_clinical/constants/app_colors.dart';
+import 'package:admin_clinical/services/data_service/data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../../../constants/global_widgets/chart/column_2_chart.dart';
 import '../../../constants/global_widgets/chart/line_chart_design.dart';
 import '../../../constants/global_widgets/color_title.dart';
@@ -83,7 +83,7 @@ class OverviewScreen extends StatelessWidget {
   RxInt touchedIndex = (-1).obs;
   RxInt touchedIndex1 = (-1).obs;
 
-  final overviewController = Get.put(OverviewController());
+  final overviewController = Get.find<OverviewController>();
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +161,7 @@ class OverviewScreen extends StatelessWidget {
                 const SizedBox(height: 10.0),
                 const Divider(thickness: 1),
                 const SizedBox(height: 10.0),
-                _graphField(),
+                _graphField(context),
                 const SizedBox(height: 10),
                 const Divider(thickness: 1),
                 const SizedBox(height: 10.0),
@@ -594,7 +594,7 @@ class OverviewScreen extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          e.amount.toString(),
+                                          e.listPass.length.toString(),
                                           style: const TextStyle(
                                             overflow: TextOverflow.ellipsis,
                                             color: AppColors.primarySecondColor,
@@ -784,7 +784,7 @@ class OverviewScreen extends StatelessWidget {
     );
   }
 
-  Row _graphField() {
+  Row _graphField(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -816,7 +816,7 @@ class OverviewScreen extends StatelessWidget {
                           fontSize: 18.0),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () => DataService.instance.deleteAllHealthRecord(),
                       child: Row(
                         children: const [
                           Text("Week ",
@@ -936,7 +936,7 @@ class OverviewScreen extends StatelessWidget {
                           fontSize: 18.0),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () => _showDatePickerPatient(context: context),
                       child: Row(
                         children: const [
                           Text("Last Week ",
@@ -954,30 +954,37 @@ class OverviewScreen extends StatelessWidget {
                 const SizedBox(height: 10.0),
                 Row(
                   children: [
-                    Expanded(
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 220,
-                        child: ColumnChartTwoColumnCustom(
-                          barGroups: [
-                            makeGroupData(0, 150 / 300 * 20, 60 / 300 * 20),
-                            makeGroupData(1, 180 / 300 * 20, 70 / 300 * 20),
-                            makeGroupData(2, 80 / 300 * 20, 50 / 300 * 20),
-                            makeGroupData(2, 100 / 300 * 20, 30 / 300 * 20),
-                            makeGroupData(1, 180 / 300 * 20, 70 / 300 * 20),
-                            makeGroupData(2, 80 / 300 * 20, 50 / 300 * 20),
-                            makeGroupData(2, 100 / 300 * 20, 30 / 300 * 20),
-                          ],
-                          members: const [
-                            'Sun',
-                            'Mon',
-                            'Tue',
-                            'Wed',
-                            'Thu',
-                            'Fri',
-                            'Sat'
-                          ],
-                          columnData: 300,
+                    Obx(
+                      () => Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 220,
+                          child: ColumnChartTwoColumnCustom(
+                            barGroups: [
+                              ...overviewController.data_patient_chart.map(
+                                (e) => makeGroupData(
+                                    e['id'],
+                                    overviewController.maxOfListPatient == 0
+                                        ? 0
+                                        : e['Male'] /
+                                            overviewController
+                                                .maxOfListPatient.value *
+                                            20,
+                                    0),
+                              ),
+                            ],
+                            members: const [
+                              'Sun',
+                              'Mon',
+                              'Tue',
+                              'Wed',
+                              'Thu',
+                              'Fri',
+                              'Sat'
+                            ],
+                            columnData:
+                                overviewController.maxOfListPatient.value,
+                          ),
                         ),
                       ),
                     ),
@@ -1017,6 +1024,22 @@ class OverviewScreen extends StatelessWidget {
         callback: () {
           overviewController.dateControllerTurnover.selectDateDoneClick();
           overviewController.fetchDataInvoiceChart();
+          Get.back();
+        },
+      ),
+    );
+  }
+
+  _showDatePickerPatient({required BuildContext context}) async {
+    await showDialog(
+      useRootNavigator: false,
+      barrierColor: Colors.black54,
+      context: context,
+      builder: (context) => DialogPickRangeDate(
+        controller: overviewController.dateControllerPatient,
+        callback: () {
+          overviewController.dateControllerPatient.selectDateDoneClick();
+          overviewController.fetchDataPatientChart();
           Get.back();
         },
       ),

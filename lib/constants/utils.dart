@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/foundation.dart';
@@ -117,25 +116,25 @@ class Utils {
       'title': 'Clinical Examination',
       'maxLine': 4,
       'icon': Icons.checklist_rounded,
-      // 'textController': TextEditingController(text: " "),
+      'key': 'clinicalExamination',
     },
     {
       'title': 'Symptom',
       'maxLine': 4,
       'icon': Icons.playlist_add_check_circle_rounded,
-      // 'textController': TextEditingController(text: " "),
+      'key': 'symptom',
     },
     {
       'title': 'Diagnostic',
       'maxLine': 4,
       'icon': Icons.file_copy_rounded,
-      // 'textController': TextEditingController(text: " "),
+      'key': 'diagnostic',
     },
     {
       'title': 'Conclusion and Treatment',
       'maxLine': 4,
       'icon': Icons.confirmation_number_rounded,
-      // 'textController': TextEditingController(text: " "),
+      'key': 'conclusionAndTreatment',
     },
   ];
 
@@ -147,7 +146,7 @@ class Utils {
       'inputFormatters': [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
-      // 'textController': TextEditingController(text: " "),
+      'key': 'weight',
     },
     {
       'title': 'Height',
@@ -156,7 +155,7 @@ class Utils {
       'inputFormatter': [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
-      'textController': TextEditingController(text: " "),
+      'key': 'height',
     },
     {
       'title': 'Heartbeat',
@@ -165,7 +164,7 @@ class Utils {
       'inputFormatters': [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
-      // 'textController': TextEditingController(text: " "),
+      'key': 'heartBeat',
     },
     {
       'title': 'Temperature',
@@ -174,16 +173,16 @@ class Utils {
       'inputFormatters': [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
-      // 'textController': TextEditingController(text: " "),
+      'key': 'temperature',
     },
     {
-      'title': 'Blood Pressure',
+      'title': 'BP',
       'maxLine': 1,
       'icon': Icons.bloodtype_rounded,
       'inputFormatters': [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
-      // 'textController': TextEditingController(text: " "),
+      'key': 'bloodPressure'
     },
     {
       'title': 'Allergy',
@@ -192,7 +191,7 @@ class Utils {
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*'))
       ],
       'icon': Icons.sick_rounded,
-      // 'textController': TextEditingController(text: " "),
+      'key': 'allergy',
     },
   ];
 }

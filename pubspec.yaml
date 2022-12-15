@@ -58,6 +58,8 @@ dependencies:
   # flutter_socket_io: ^0.6.0
   socket_io_client: ^1.0.2
   syncfusion_flutter_datepicker: ^20.3.60
+  font_awesome_flutter: ^10.3.0
+  table_calendar: ^3.0.8
 
 dev_dependencies:
   flutter_test:
@@ -99,13 +101,13 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Roboto
+    - family: Poppins
       fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Italic.ttf
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Italic.ttf
           style: italic
           weight: 300
-        - asset: assets/fonts/Roboto-Light.ttf
+        - asset: assets/fonts/Poppins-Light.ttf
           weight: 300
   #   - family: Trajan Pro
   #     fonts:

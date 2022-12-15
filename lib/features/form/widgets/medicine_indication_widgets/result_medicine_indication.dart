@@ -6,9 +6,8 @@ import '../../controller/medical_form_controller.dart';
 import 'medicine_search_form.dart';
 
 class ResultMedicineIndication extends StatelessWidget {
-  ResultMedicineIndication({super.key});
-
-  final medicalFormController = Get.find<MedicalFormController>();
+  const ResultMedicineIndication({super.key, required this.tagBuilder});
+  final String tagBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +17,12 @@ class ResultMedicineIndication extends StatelessWidget {
           customRow: [
             {'flex': 2, 'text': 'ID'},
             {'flex': 1, 'text': 'Name'},
-            {'flex': 1, 'text': 'Amount Price'},
-            {'flex': 1, 'text': 'Original Price'},
+            {'flex': 1, 'text': 'Unit'},
+            {'flex': 1, 'text': 'Price Per Unit'},
+            {'flex': 1, 'text': 'Amount'},
             {'flex': 1, 'text': 'Type'},
             {'flex': 1, 'text': 'Description'},
-            {'flex': 1, 'text': 'Unit'},
-            {'flex': 1, 'text': 'Remaining'},
+            // {'flex': 1, 'text': 'Remaining'},
           ],
           width: 48,
         ),
@@ -32,13 +31,15 @@ class ResultMedicineIndication extends StatelessWidget {
             assignId: true,
             id: 'ResultMedicineTableRow',
             autoRemove: false,
-            builder: (controller) {
+            tag: tagBuilder,
+            builder: (medicalIndicationController) {
               return ListView.builder(
                 itemBuilder: (context, index) {
                   return ResultMedicineTableRow(
+                    amount: 0,
                     deleteMedicineChoice:
-                        medicalFormController.onChoiceMedicineChange,
-                    medicine: medicalFormController
+                        medicalIndicationController.onChoiceMedicineChange,
+                    medicine: medicalIndicationController
                         .listMedicineIndicator.entries
                         .elementAt(index)
                         .value,
@@ -46,7 +47,7 @@ class ResultMedicineIndication extends StatelessWidget {
                   );
                 },
                 itemCount:
-                    medicalFormController.listMedicineIndicator.value.length,
+                    medicalIndicationController.listMedicineIndicator.length,
               );
             },
           ),

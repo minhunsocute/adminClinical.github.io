@@ -12,6 +12,7 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 
 import '../../constants/api_link.dart';
 import '../../constants/error_handing.dart';
+import '../../models/doctor.dart';
 import '../../models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,7 +20,17 @@ class AuthService extends ChangeNotifier {
   AuthService._privateConstructor();
   static final AuthService instance = AuthService._privateConstructor();
   // ignore: prefer_final_fields
-
+  Doctor1 _doc = Doctor1(
+    name: '',
+    experience: 0,
+    address: '',
+    avt: '',
+    dateBorn: DateTime.now(),
+    departMent: '',
+    description: '',
+    iDBS: '',
+    phoneNumber: '',
+  );
   User _user = User(
     name: '',
     email: '',
@@ -34,9 +45,15 @@ class AuthService extends ChangeNotifier {
     avt: '',
   );
   User get user => _user;
+  Doctor1 get doc => _doc;
   void setUser(String user) {
     _user = User.fromJson(user);
     notifyListeners();
+  }
+
+  void setDoctor(String doc) {
+    _doc = Doctor1.fromJson(jsonDecode(doc));
+    print(_doc.name);
   }
 
   bool get isLogin => user.id == '' ? false : true;
@@ -80,15 +97,16 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  void signIn(
-      {required BuildContext context,
-      required String email,
-      required String password,
-      required VoidCallback updataLoading}) async {
+  Future<bool> signIn({
+    required BuildContext context,
+    required String email,
+    required String password,
+  }) async {
+    bool result = false;
     try {
       print("sign in function is called");
-      var clinet = http.Client();
-      http.Response res = await clinet.post(
+      var client = http.Client();
+      http.Response res = await client.post(
         Uri.parse(
           '${ApiLink.uri}/api/signin',
         ),
@@ -102,22 +120,22 @@ class AuthService extends ChangeNotifier {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      if (res.statusCode == 200) {
-        updataLoading();
-      }
+
       httpErrorHandle(
         response: res,
         context: context,
         onSuccess: () async {
+          result = true;
           SharedPreferences prefs = await SharedPreferences.getInstance();
           AuthService.instance.setUser(res.body);
           await prefs.setString('x-auth-token', jsonDecode(res.body)['token']);
-          Get.offAllNamed(PageName.dashBoard);
+          // Get.offAllNamed(PageName.dashBoard);
         },
       );
     } catch (e) {
-      updataLoading();
+      print('signIn: $e');
     }
+    return result;
   }
 
   Future<Map<String, dynamic>> forgetPassword(

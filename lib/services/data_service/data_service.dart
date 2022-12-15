@@ -3,6 +3,8 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:admin_clinical/models/health_record.dart';
+import 'package:admin_clinical/services/auth_service/auth_service.dart';
+import 'package:admin_clinical/services/data_service/clinical_room_service.dart';
 import 'package:admin_clinical/services/data_service/health_record_service.dart';
 import 'package:admin_clinical/services/data_service/invoice_service.dart';
 import 'package:admin_clinical/services/data_service/medicine_service.dart';
@@ -25,37 +27,63 @@ class DataService extends GetxController {
   RxList<Doctor1> listDoctor = <Doctor1>[].obs;
   RxList<Department> listDepartMent = <Department>[].obs;
 
-  fetchAllData() async {
-    if (listDoctor.value.isEmpty) {
-      fetchAllDoctor((value) {
-        checkFetchData.value.add(1);
-        listDoctor.value = value;
-      });
-    }
-    if (listDepartMent.value.isEmpty) {
-      fetchAllDeparMent((value) {
-        checkFetchData.value.add(1);
-        listDepartMent.value = value;
-      });
-    }
-    if (PatientService.listPatients.isEmpty) {
-      PatientService.fetchAllPatientData();
-    }
-    if (MedicineService.instance.listMedicine.isEmpty) {
-      MedicineService.instance.fetchAllMedicineData();
-    }
-    if (HealthRecordService.listHealthRecord.isEmpty) {
-      HealthRecordService.fetchAllHealthRecordData();
-    }
-    if (InvoiceService.instance.listInvoice.isEmpty) {
-      InvoiceService.instance.fetchAllDataInvoice();
-      if (ServiceDataService.instance.service.isEmpty) {
-        ServiceDataService.instance.fetchAllDataService();
+  String? getNameDoctor(String id) {
+    String? result;
+    listDoctor.forEach((element) {
+      if (element.iDBS == id) {
+        result = element.name!;
       }
-    }
+    });
+    return result;
   }
 
-  void fetchAllDoctor(Function(List<Doctor1>) callBack) async {
+  String getIdDepartment(String name) {
+    String result = ' ';
+    for (var element in listDepartMent) {
+      if (element.name == name) result = element.id ?? "";
+    }
+    return result;
+  }
+
+  Future<bool> fetchAllData() async {
+    // if (listDoctor.isEmpty) {
+    await fetchAllDoctor((value) {
+      checkFetchData.add(1);
+      listDoctor.value = value;
+    });
+    // }
+
+    // if (listDepartMent.isEmpty) {
+    await fetchAllDeparMent((value) {
+      checkFetchData.add(1);
+      listDepartMent.value = value;
+    });
+    // }
+
+    // if (PatientService.listPatients.isEmpty) {
+    await PatientService.fetchAllPatientData();
+    // }
+
+    // if (MedicineService.instance.listMedicine.isEmpty) {
+    await MedicineService.instance.fetchAllMedicineData();
+    // }
+    // if (HealthRecordService.listHealthRecord.isEmpty) {
+    await HealthRecordService.fetchAllHealthRecordData();
+    // }
+    // if (InvoiceService.instance.listInvoice.isEmpty) {
+    await InvoiceService.instance.fetchAllDataInvoice();
+    // }
+    // if (ServiceDataService.instance.service.isEmpty) {
+    await ServiceDataService.instance.fetchAllDataService();
+    // }
+    // if (ClinicalRoomService.instance.listClinicalRoom.isEmpty) {
+    await ClinicalRoomService.instance.fetchAllClinicalRoomData();
+    // }
+
+    return true;
+  }
+
+  Future<void> fetchAllDoctor(Function(List<Doctor1>) callBack) async {
     List<Doctor1> listDoctor = [];
     try {
       print('Get all doctor function is called');
@@ -80,7 +108,38 @@ class DataService extends GetxController {
     }
   }
 
-  void fetchAllDeparMent(Function(List<Department>) callBack) async {
+  Future<bool> getDoctorRole(String id) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiLink.uri}/api/doctors/findByUserId/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (res.statusCode == 200) {
+        AuthService.instance.setDoctor(res.body);
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  deleteAllHealthRecord() async {
+    try {
+      http.Response res = await http.get(
+        Uri.parse('${ApiLink.uri}/deleteAllHealthRecord'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> fetchAllDeparMent(Function(List<Department>) callBack) async {
     List<Department> listDepartMent = [];
     try {
       print("Get all departmeent function is called");

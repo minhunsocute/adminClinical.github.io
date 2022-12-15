@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:admin_clinical/constants/global_widgets/custom_dialog_error/error_dialog.dart';
 import 'package:admin_clinical/constants/global_widgets/custom_dialog_error/success_dialog.dart';
 import 'package:admin_clinical/constants/utils.dart';
+import 'package:admin_clinical/models/health_record.dart';
+import 'package:admin_clinical/services/data_service/health_record_service.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,7 +27,7 @@ class DoctorMainController extends GetxController {
     listDepartMent.value = DataService.instance.listDepartMent;
     listDoctor.value = DataService.instance.listDoctor;
     listDepartMentForSearch.value = DataService.instance.listDepartMent;
-    listDepartMentForSearch.value.add(Department(id: '00', name: 'All'));
+    listDepartMentForSearch.add(Department(id: '00', name: 'All'));
     update(['listDoctor']);
   }
 
@@ -38,23 +40,22 @@ class DoctorMainController extends GetxController {
   RxString departMent = "01".obs;
   Rx<DateTime> dateBorn = DateTime.now().obs;
   RxInt gender = 0.obs;
+
   // Text Editting controller
   final TextEditingController searchController = TextEditingController();
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
 
   //function
-
   getCountDoctorInDepart(String id) {
     int count = 0;
-    listDoctor.value.forEach(
-        (element) => (element.departMent == id) ? count += 1 : count += 0);
+    for (var element in listDoctor) {
+      (element.departMent == id) ? count += 1 : count += 0;
+    }
     return count;
   }
 
@@ -63,9 +64,9 @@ class DoctorMainController extends GetxController {
       listSearchDoctor.value = await DataService.instance.searchDoctor(
           context,
           searchQuery,
-          listDepartMentForSearch.value[selectDepartMentFotSearch.value].id!);
+          listDepartMentForSearch[selectDepartMentFotSearch.value].id!);
     } else {
-      listSearchDoctor.value.clear();
+      listSearchDoctor.clear();
     }
     update(['listDoctor']);
   }

@@ -75,7 +75,7 @@ class ListInvoiceItem extends StatelessWidget {
         Expanded(
           flex: 1,
           child: Text(
-            DateFormat().add_yMMMEd().format(date),
+            '${DateFormat().add_yMMMEd().format(date)} ${DateFormat().add_jm().format(date)}',
             style: const TextStyle(
               color: AppColors.headline1TextColor,
               fontSize: 16.0,
@@ -162,6 +162,10 @@ class ListInvoiceItem extends StatelessWidget {
                   const PopupMenuItem<String>(
                     value: 'Change Status',
                     child: Text('change Status'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'Make Invoice',
+                    child: Text('Make Invoice'),
                   ),
                 ],
                 child: const Icon(

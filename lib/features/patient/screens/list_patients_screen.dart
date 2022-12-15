@@ -1,10 +1,12 @@
 import 'package:admin_clinical/commons/widgets/custom_icon_button.dart';
 import 'package:admin_clinical/constants/app_decoration.dart';
+import 'package:admin_clinical/features/form/controller/medical_form_controller.dart';
 import 'package:admin_clinical/features/overview/widgets/custom_table.dart';
 import 'package:admin_clinical/features/patient/controller/patient_page_controller.dart';
 import 'package:admin_clinical/features/patient/screens/patient_detail_screen.dart';
 import 'package:admin_clinical/features/patient/screens/patient_screen.dart';
 import 'package:admin_clinical/features/patient/widgets/edit_patient_dialog.dart';
+import 'package:admin_clinical/features/patient/widgets/select_health_record_dialog.dart';
 import 'package:admin_clinical/models/patient.dart';
 import 'package:admin_clinical/services/data_service/patient_service.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../constants/app_colors.dart';
+import '../../../services/auth_service/auth_service.dart';
 import '../widgets/add_patient_dialog.dart';
 import '../widgets/filter_card.dart';
 import '../widgets/show_entries_widget.dart';
@@ -26,18 +29,34 @@ const Map<String, String> patientListField = {
   'payment': 'Payment',
 };
 
+// ignore: must_be_immutable
 class ListPatientScreen extends StatelessWidget {
-  ListPatientScreen({super.key, required this.examinationActionHandle});
-  final Function(String) examinationActionHandle;
-  final patientPageController = Get.put(PatientPageController());
+  ListPatientScreen({super.key});
+  final patientPageController = Get.find<PatientPageController>();
+  var isLoading = false.obs;
 
   void _onSelectionAction(
       String value, int index, BuildContext context, Patient patient) async {
     if (value == 'Examination') {
-      examinationActionHandle(
-          patientPageController.data.value.values.elementAt(index).id);
+      await Get.dialog(
+        SelectRecordDialog(
+          patientId: patient.id,
+          deleteButton: Get.find<MedicalFormController>().deleteHealthRecord,
+        ),
+      );
+      print('here');
     } else if (value == 'Detail') {
-      Get.dialog(const PatientDetailScreen());
+      try {
+        patientPageController.selectedPatient.value = patient.id;
+        Get.dialog(
+          Obx(
+            () => PatientDetailScreen(
+                patient: PatientService.listPatients[patient.id]!),
+          ),
+        );
+      } catch (e) {
+        print(e.toString());
+      }
     } else if (value == 'Edit') {
       Get.dialog(
         EditPatientDialog(
@@ -76,27 +95,29 @@ class ListPatientScreen extends StatelessWidget {
                               'Patient List',
                               style: Theme.of(context).textTheme.headline2,
                             ),
-                            CustomIconButton(
-                              onPressed: () => Get.dialog(
-                                AddPatientDialog(
-                                  height: constraints.maxHeight * 0.8,
-                                  width: constraints.maxWidth * 0.45,
-                                ),
-                              ),
-                              label: const Text(
-                                'Add Patient',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              icon: const Icon(
-                                Icons.add_outlined,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
+                            AuthService.instance.user.type == "Admin"
+                                ? CustomIconButton(
+                                    onPressed: () => Get.dialog(
+                                      AddPatientDialog(
+                                        height: constraints.maxHeight * 0.8,
+                                        width: constraints.maxWidth * 0.45,
+                                      ),
+                                    ),
+                                    label: const Text(
+                                      'Add Patient',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.add_outlined,
+                                      color: Colors.white,
+                                      size: 12,
+                                    ),
+                                  )
+                                : const SizedBox(),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -144,24 +165,41 @@ class ListPatientScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            const Expanded(
+                            Expanded(
                               child: FilterCategory(
-                                title: 'Patient',
-                                hint: 'Patient name, Patient id, etc',
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    patientPageController
+                                        .getPatientAccordingKey(value, 'name');
+                                  }
+                                },
+                                controller:
+                                    patientPageController.patientName.value,
+                                title: 'Patient name',
+                                hint: 'Enter Patient name',
                                 iconData: Icons.search_outlined,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            const Expanded(
-                              child: FilterCategory(
-                                title: 'Category',
-                                hint: 'All Category',
-                                iconData: Icons.category_outlined,
                               ),
                             ),
                             const SizedBox(width: 20),
                             Expanded(
                               child: FilterCategory(
+                                controller:
+                                    patientPageController.patientId.value,
+                                title: 'Patient ID',
+                                hint: 'Enter Patient ID',
+                                iconData: Icons.category_outlined,
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    patientPageController
+                                        .getPatientAccordingKey(value, 'id');
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: FilterCategory(
+                                // onSubmit: (value) {},
                                 title: 'Date of Joining',
                                 hint: DateFormat()
                                     .add_yMd()

@@ -1,109 +1,83 @@
 import 'package:admin_clinical/constants/app_colors.dart';
 import 'package:admin_clinical/features/overview/widgets/dismissible_table_row.dart';
-import 'package:admin_clinical/features/patient/screens/patient_screen.dart';
 import 'package:admin_clinical/models/medicine.dart';
-import 'package:admin_clinical/models/patient.dart';
 import 'package:admin_clinical/models/service.dart';
-import 'package:admin_clinical/routes/name_route.dart';
 import 'package:admin_clinical/services/data_service/patient_service.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../constants/app_decoration.dart';
 
-class CurrentPatientTableRow extends StatelessWidget {
-  const CurrentPatientTableRow({
+class SelectHealthRecord extends StatelessWidget {
+  const SelectHealthRecord({
     super.key,
-    required this.name,
     required this.id,
-    required this.date,
-    required this.gender,
-    required this.diseases,
-    required this.status,
-    required this.color,
-    required this.avt,
+    required this.dateCreated,
+    required this.totalMoney,
+    required this.doctorInCharge,
+    required this.departmentId,
+    required this.deleteCallback,
+    required this.viewCallback,
   });
-  final String avt;
-  final String name;
   final String id;
-  final String date;
-  final String gender;
-  final String diseases;
-  final String status;
-  final Color color;
+  final DateTime dateCreated;
+  final double totalMoney;
+  final String doctorInCharge;
+  final String departmentId;
+  final VoidCallback deleteCallback;
+  final VoidCallback viewCallback;
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> data = {
-      'name': name,
-      'id': id,
-      'date': date,
-      'gender': gender,
-      'diseases': diseases,
-      'status': status,
-    };
-    return InkWell(
-      onTap: color == Colors.white
-          ? () => Get.to(() => const Material(child: PatientScreen()))
-          : null,
-      borderRadius: AppDecoration.primaryRadiusBorder,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-            color: color,
-            borderRadius: AppDecoration.primaryRadiusBorder,
-            boxShadow: [
-              BoxShadow(
-                  offset: const Offset(0, 0.5),
-                  color: Colors.grey[200]!,
-                  blurRadius: 2)
-            ]),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(width: 5),
-            color == Colors.white
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      avt,
-                      fit: BoxFit.cover,
-                      height: 35,
-                      width: 35,
-                    ),
-                  )
-                : const SizedBox(
-                    height: 35,
-                    width: 35,
+    final List<String> data = [
+      id,
+      DateFormat().add_yMMMMd().format(dateCreated),
+      totalMoney.toString(),
+      doctorInCharge,
+      departmentId,
+    ];
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(6),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(width: 0.4, color: Colors.grey)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(width: 5),
+          ...data
+              .map(
+                (element) => Expanded(
+                  child: Text(
+                    element,
+                    style: const TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
                   ),
-            const SizedBox(width: 5),
-            ...data.entries
-                .map(
-                  (e) => Expanded(
-                    child: Text(
-                      e.value,
-                      style: const TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                )
-                .toList(),
-            (color == Colors.white)
-                ? InkWell(
-                    onTap: () {},
-                    child: const Icon(
-                      Icons.more_vert_outlined,
-                    ),
-                  )
-                : const SizedBox(
-                    width: 25,
-                  ),
-            const SizedBox(width: 5),
-          ],
-        ),
+                ),
+              )
+              .toList(),
+          Expanded(
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: deleteCallback,
+                  child: const Icon(Icons.delete, color: Colors.red),
+                ),
+                const SizedBox(width: 5.0),
+                InkWell(
+                  onTap: viewCallback,
+                  child: const Icon(Icons.file_copy,
+                      color: AppColors.primaryColor),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 5),
+        ],
       ),
     );
   }
@@ -196,10 +170,9 @@ class PatientListRow extends StatelessWidget {
                     (e) => Expanded(
                       child: Text(
                         e.value,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline4!
-                            .copyWith(color: Colors.blueGrey),
+                        style: Theme.of(context).textTheme.headline4!.copyWith(
+                            overflow: TextOverflow.ellipsis,
+                            color: Colors.blueGrey),
                       ),
                     ),
                   )
@@ -552,13 +525,25 @@ class ResultMedicineTableRow extends StatelessWidget {
     required this.color,
     required this.medicine,
     required this.deleteMedicineChoice,
+    required this.amount,
   });
   final Function(bool, String) deleteMedicineChoice;
   final Color color;
   final Medicine medicine;
+  final double amount;
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> data = {
+      'ID': medicine.id,
+      'thumbnails': medicine.thumbnails,
+      'Name': medicine.name,
+      'Unit': medicine.unit,
+      'Price Per Unit': medicine.price,
+      'Amount': amount,
+      'Type': medicine.type,
+      'Description': medicine.description,
+    };
     return InkWell(
       onTap: color == Colors.white ? () {} : null,
       borderRadius: AppDecoration.primaryRadiusBorder,
@@ -580,13 +565,14 @@ class ResultMedicineTableRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(width: 5),
-            ...medicine.toJson().entries.map(
+            ...data.entries.map(
               (e) {
                 int flex = 1;
                 if (e.key.toString() == 'thumbnails') {
                   return const SizedBox();
                 }
-                if (e.key.toString() == '_id') {
+
+                if (e.key.toString() == 'ID') {
                   flex = 2;
                 }
                 return Expanded(
@@ -610,12 +596,15 @@ class ResultMedicineTableRow extends StatelessWidget {
                             const SizedBox(
                               width: 5,
                             ),
-                            Text(
-                              e.value.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blueGrey,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Text(
+                                e.value.toString(),
+                                style: const TextStyle(
+                                    overflow: TextOverflow.ellipsis,
+                                    color: Colors.blueGrey,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             )
                           ],
                         ),

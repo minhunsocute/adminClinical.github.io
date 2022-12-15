@@ -1,15 +1,12 @@
 import 'package:admin_clinical/features/invoice/controllers/invoice_controller.dart';
-import 'package:admin_clinical/features/invoice/screens/invoice_view_screen.dart';
 import 'package:admin_clinical/features/patient/widgets/custom_text_form_field.dart';
 import 'package:admin_clinical/features/patient/widgets/show_entries_widget.dart';
-import 'package:admin_clinical/models/invoice.dart';
+import 'package:admin_clinical/services/data_service/health_record_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_decoration.dart';
 import '../../../constants/global_widgets/button_mouse_region.dart';
 import '../../auth/widgets/custom_button.dart';
 import '../../invoice/widgets/dialog_change_status.dart';
@@ -30,6 +27,7 @@ List<String> headerTitle = [
   "Action",
 ];
 
+// ignore: must_be_immutable
 class TurnoverMainScreen extends StatelessWidget {
   TurnoverMainScreen({super.key});
   final patientPageController = Get.put(PatientPageController());
@@ -115,7 +113,7 @@ class TurnoverMainScreen extends StatelessWidget {
                   ),
                 ),
                 const Text(
-                  " Invoice",
+                  "Invoice",
                   style: TextStyle(
                     color: AppColors.primarySecondColor,
                     fontSize: 22.0,
@@ -236,7 +234,7 @@ class TurnoverMainScreen extends StatelessWidget {
                               () => Expanded(
                                 child: ListView(
                                   children: [
-                                    ...invoiceController.listInvoice.map(
+                                    ...invoiceController.getListInvoice.map(
                                       (element) => ListInvoiceItem(
                                         id: element.id,
                                         category: element.category,
@@ -252,6 +250,20 @@ class TurnoverMainScreen extends StatelessWidget {
                                                 invoice: element,
                                               ),
                                             );
+                                          } else if (value == 'Make Invoice') {
+                                            invoiceController
+                                                    .selectedHealthRecord
+                                                    .value =
+                                                HealthRecordService
+                                                        .listHealthRecord[
+                                                    element.hrId];
+                                            invoiceController.selectedInvoice
+                                                .value = element;
+                                            print(invoiceController
+                                                .selectedHealthRecord
+                                                .value!
+                                                .patientId);
+                                            invoiceController.changePage(1);
                                           } else {
                                             Get.dialog(
                                               DialogChangeStatus(
@@ -272,7 +284,7 @@ class TurnoverMainScreen extends StatelessWidget {
                         shrinkWrap: false,
                         crossAxisCount: 6,
                         children: <Widget>[
-                          ...invoiceController.listInvoice.map(
+                          ...invoiceController.getListInvoice.map(
                             (e) => GridInvoiceItem(e: e),
                           ),
                         ],
@@ -408,13 +420,15 @@ class TurnoverMainScreen extends StatelessWidget {
           ...listFilter.map(
             (e) => Expanded(
               child: InkWell(
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    child: e['onTap'],
-                  ),
-                ),
+                onTap: () async {
+                  final r = await showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: e['onTap'],
+                    ),
+                  );
+                },
                 child: Container(
                   margin: const EdgeInsets.only(right: 10.0),
                   padding: const EdgeInsets.all(15.0),
@@ -705,32 +719,7 @@ class SelectStatusDialog extends StatelessWidget {
   SelectStatusDialog({
     Key? key,
   }) : super(key: key);
-  RxList<Map<String, dynamic>> name = [
-    {
-      "name": "All Invoices",
-      "check": false.obs,
-    },
-    {
-      "name": "Paid",
-      "check": false.obs,
-    },
-    {
-      "name": "Overdude",
-      "check": false.obs,
-    },
-    {
-      "name": "Draft",
-      "check": false.obs,
-    },
-    {
-      "name": "Recuring",
-      "check": false.obs,
-    },
-    {
-      "name": "Cancelled",
-      "check": false.obs,
-    },
-  ].obs;
+  final controller = Get.find<InvoiceController>();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -766,7 +755,7 @@ class SelectStatusDialog extends StatelessWidget {
             () => Expanded(
               child: ListView(
                 children: [
-                  ...name.map(
+                  ...controller.status.map(
                     (e) => Row(
                       children: [
                         Checkbox(
@@ -802,7 +791,12 @@ class SelectStatusDialog extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: 40.0,
-            child: CustomButton(title: "Apply", onPressed: () {}),
+            child: CustomButton(
+                title: "Apply",
+                onPressed: () {
+                  controller.fetchDataByStatus();
+                  Get.back();
+                }),
           ),
         ],
       ),

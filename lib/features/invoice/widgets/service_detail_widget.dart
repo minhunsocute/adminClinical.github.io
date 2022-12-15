@@ -4,12 +4,15 @@ import 'package:admin_clinical/features/form/widgets/form_card.dart';
 import 'package:admin_clinical/features/form/widgets/medicine_indication_widgets/result_medicine_indication.dart';
 import 'package:admin_clinical/features/form/widgets/service_indication_widgets/result_indication.dart';
 import 'package:admin_clinical/features/invoice/controllers/invoice_controller.dart';
-import 'package:admin_clinical/features/invoice/screens/verify_invoice_information_screen.dart';
+import 'package:admin_clinical/features/invoice/screens/make_invoice_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../models/patient.dart';
+
 class ServiceDetailWidget extends StatelessWidget {
-  ServiceDetailWidget({super.key});
+  ServiceDetailWidget({super.key, required this.patient});
+  final Patient patient;
 
   final invoiceController = Get.find<InvoiceController>();
 
@@ -24,9 +27,20 @@ class ServiceDetailWidget extends StatelessWidget {
               child: FormCard(
                 child: Row(
                   children: [
-                    const Text(
-                      'Hoang Ankin',
-                      style: TextStyle(
+                    CircleAvatar(
+                      backgroundColor: Colors.grey[100],
+                      backgroundImage:
+                          (patient.avt != null && patient.avt!.isNotEmpty)
+                              ? NetworkImage(
+                                  patient.avt!,
+                                ) as ImageProvider
+                              : const AssetImage('images/user.png'),
+                      radius: 25,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      patient.name,
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -61,7 +75,9 @@ class ServiceDetailWidget extends StatelessWidget {
                               horizontal: 30, vertical: 25),
                           shape: RoundedRectangleBorder(
                               borderRadius: AppDecoration.primaryRadiusBorder)),
-                      onPressed: () {},
+                      onPressed: () {
+                        invoiceController.changePage(0);
+                      },
                       child: const Text(
                         'Cancel All',
                         style: TextStyle(
@@ -75,8 +91,16 @@ class ServiceDetailWidget extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(child: ResultIndication()),
-            Expanded(child: FormCard(child: ResultMedicineIndication())),
+            const Expanded(
+                child: ResultIndication(
+              tagBuilder: MakeInvoiceScreen.tagBuilder,
+            )),
+            const Expanded(
+              child: FormCard(
+                child: ResultMedicineIndication(
+                    tagBuilder: MakeInvoiceScreen.tagBuilder),
+              ),
+            ),
           ],
         );
       },

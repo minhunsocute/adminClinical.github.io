@@ -6,10 +6,13 @@ import 'package:admin_clinical/models/medicine.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../screens/medical_form_screen.dart';
+
 class MedicineSearchForm extends StatelessWidget {
   MedicineSearchForm({super.key});
 
-  final medicalIndicationController = Get.find<MedicalFormController>();
+  final medicalIndicationController =
+      Get.find<MedicalFormController>(tag: MedicalFormScreen.tagBuilder);
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +105,8 @@ class MedicineSearchForm extends StatelessWidget {
                       assignId: true,
                       autoRemove: false,
                       id: tempMedicine.id,
-                      builder: (context) {
+                      tag: MedicalFormScreen.tagBuilder,
+                      builder: (_) {
                         return MedicineTableRow(
                           isSelected: medicalIndicationController
                               .isSelected(tempMedicine.id),
@@ -138,14 +142,15 @@ class MedicineSearchFormRow extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-          color: Colors.blueGrey[200],
-          borderRadius: AppDecoration.primaryRadiusBorder,
-          boxShadow: [
-            BoxShadow(
-                offset: const Offset(0, 0.5),
-                color: Colors.grey[200]!,
-                blurRadius: 2)
-          ]),
+        color: AppColors.primaryColor,
+        borderRadius: BorderRadius.circular(7.0),
+        // boxShadow: [
+        //   BoxShadow(
+        //       offset: const Offset(0, 0.5),
+        //       color: Colors.grey[200]!,
+        //       blurRadius: 2)
+        // ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -156,7 +161,7 @@ class MedicineSearchFormRow extends StatelessWidget {
               child: Text(
                 element['text'],
                 style: const TextStyle(
-                    color: Colors.blueGrey,
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold),
               ),
