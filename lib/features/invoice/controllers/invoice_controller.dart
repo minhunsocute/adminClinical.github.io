@@ -3,20 +3,18 @@ import 'package:admin_clinical/features/invoice/screens/verify_invoice_informati
 import 'package:admin_clinical/features/overview/controller/overview_controller.dart';
 import 'package:admin_clinical/features/turnover/screen/turnover_main_screen.dart';
 import 'package:admin_clinical/services/data_service/invoice_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../constants/global_widgets/custom_dialog_error/success_dialog.dart';
 import '../../../models/health_record.dart';
 import '../../../models/invoice.dart';
-import '../../../models/patient.dart';
 
 class InvoiceController extends GetxController {
   // Rx<Patient?> selectedPatient = Rx(null);
   Rx<HealthRecord?> selectedHealthRecord = Rx(null);
   Rx<Invoice?> selectedInvoice = Rx(null);
-
+  RxList<String> lInvoiceSelect = <String>[].obs;
   final controller = Get.find<OverviewController>();
   var selectedPage = 0.obs;
   RxList<Invoice> listInvoice = <Invoice>[].obs;
@@ -41,8 +39,10 @@ class InvoiceController extends GetxController {
   late final List<Widget> pages = [
     TurnoverMainScreen(),
     MakeInvoiceScreen(),
-    VerifyInvoiceInformationScreen(),
+    Obx(() => verifiedPage.value)
   ];
+
+  Rx<Widget> verifiedPage = Rx<Widget>(const SizedBox());
 
   void changePage(int value) {
     if (value >= 0 && value < pages.length) {
@@ -103,6 +103,31 @@ class InvoiceController extends GetxController {
           .value) {
         listInvoiceSearchBy.add((item));
       }
+    }
+  }
+
+  void deleteInvoice(String id) async {
+    bool delete =
+        await InvoiceService.instance.deleteInvoice(Get.context!, id: id);
+    if (delete) {
+      InvoiceService.instance.listInvoice
+          .removeWhere((element) => element.id == id);
+      Get.dialog(
+        const SuccessDialog(question: "Delete Invoice", title1: "Success"),
+      );
+    }
+  }
+
+  void deleteManyInvoice() async {
+    bool delete = await InvoiceService.instance
+        .deleteManyInvoice(Get.context!, listId: lInvoiceSelect);
+    if (delete) {
+      InvoiceService.instance.listInvoice
+          .removeWhere((element) => lInvoiceSelect.contains(element.id));
+      Get.back();
+      Get.dialog(
+        const SuccessDialog(question: "Delete Invoice", title1: "Success"),
+      );
     }
   }
 

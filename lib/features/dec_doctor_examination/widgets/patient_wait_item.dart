@@ -42,11 +42,7 @@ class PatientWaitItem extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
           decoration: BoxDecoration(
-            color: check
-                ? AppColors.primaryColor[300]
-                : onIt.value
-                    ? AppColors.primaryColor[300]
-                    : Colors.white,
+            color: onIt.value ? AppColors.primaryColor[300] : Colors.white,
             borderRadius: BorderRadius.circular(15.0),
             boxShadow: [
               BoxShadow(
@@ -80,11 +76,9 @@ class PatientWaitItem extends StatelessWidget {
                   headerTitle,
                   style: TextStyle(
                     overflow: TextOverflow.ellipsis,
-                    color: check
+                    color: onIt.value
                         ? Colors.white
-                        : onIt.value
-                            ? Colors.white
-                            : AppColors.headline1TextColor,
+                        : AppColors.headline1TextColor,
                     fontWeight: FontWeight.bold,
                     fontSize: onIt.value ? 20.0 : 16.0,
                   ),
@@ -96,11 +90,9 @@ class PatientWaitItem extends StatelessWidget {
                   id,
                   style: TextStyle(
                     overflow: TextOverflow.ellipsis,
-                    color: check
+                    color: onIt.value
                         ? Colors.white
-                        : onIt.value
-                            ? Colors.white
-                            : AppColors.headline1TextColor,
+                        : AppColors.headline1TextColor,
                     fontWeight: FontWeight.bold,
                     fontSize: onIt.value ? 20.0 : 16.0,
                   ),
@@ -112,11 +104,9 @@ class PatientWaitItem extends StatelessWidget {
                   time,
                   style: TextStyle(
                     overflow: TextOverflow.ellipsis,
-                    color: check
+                    color: onIt.value
                         ? Colors.white
-                        : onIt.value
-                            ? Colors.white
-                            : AppColors.headline1TextColor,
+                        : AppColors.headline1TextColor,
                     fontWeight: FontWeight.bold,
                     fontSize: onIt.value ? 20.0 : 16.0,
                   ),
@@ -132,12 +122,14 @@ class PatientWaitItem extends StatelessWidget {
                           horizontal: 15.0, vertical: 5.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15.0),
-                        border: Border.all(width: 1, color: Colors.red),
-                        color: Colors.red[200],
+                        border: Border.all(
+                            width: 1, color: check ? Colors.green : Colors.red),
+                        color: check ? Colors.green[200] : Colors.red[200],
                       ),
-                      child: const Text('Wait',
+                      child: Text(check ? 'Completed' : 'Wait',
                           style: TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold)),
+                              color: check ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 10.0),
                     SizedBox(

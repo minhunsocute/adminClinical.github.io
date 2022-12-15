@@ -74,10 +74,10 @@ class DashboardController extends GetxController {
     await Get.putAsync(() => Future.value(DecDoctExaminationController()));
     await Get.putAsync(() => Future.value(MedicalFormController()));
     await Get.putAsync(() => Future.value(OverviewController()));
+    await Get.putAsync(() => Future.value(InvoiceController()));
     await Get.putAsync(() => Future.value(DoctorMainController()));
     await Get.putAsync(() => Future.value(DoctorExaminationController()));
     await Get.putAsync(() => Future.value(PatientPageController()));
-    await Get.putAsync(() => Future.value(InvoiceController()));
     await Get.putAsync(() => Future.value(ClinicalRoomController()));
     await Get.putAsync(() => Future.value(MedicineController()));
     await Get.putAsync(() => Future.value(SettingController()));
@@ -118,10 +118,10 @@ class DashboardController extends GetxController {
         'label': 'Patient',
         'icon': Icons.person_outline,
       },
-      {
-        'label': 'Patient Wait',
-        'icon': FontAwesomeIcons.file,
-      },
+      // {
+      //   'label': 'Patient Wait',
+      //   'icon': FontAwesomeIcons.file,
+      // },
       {
         'label': 'Doctor',
         'icon': Icons.medical_information_outlined,
@@ -149,7 +149,7 @@ class DashboardController extends GetxController {
         'icon': Icons.dashboard_outlined,
       },
       {
-        'label': 'Patient Wait',
+        'label': 'Examination',
         'icon': FontAwesomeIcons.file,
       },
       {
@@ -177,7 +177,7 @@ class DashboardController extends GetxController {
     'Admin': [
       OverviewScreen(),
       ListPatientScreen(),
-      DoctorExaminationScreen(),
+      // DoctorExaminationScreen(),
       DoctorMainScreen(),
       InvoiceView(),
       ClinicalRoom(),
