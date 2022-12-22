@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../constants/api_link.dart';
-import '../../models/patient.dart';
 import 'package:http/http.dart' as http;
 
 class HealthRecordService {
@@ -41,6 +40,58 @@ class HealthRecordService {
     }
   }
 
+  static Future<Map<String, dynamic>?> getHealthRecordById(String id) async {
+    Map<String, dynamic>? healthRecordMap;
+
+    try {
+      final response = await http.get(
+        Uri.parse("${ApiLink.uri}/api/getHealthRecordById"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'id': id,
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final extractData = jsonDecode(response.body);
+        print(extractData);
+        healthRecordMap = extractData['healthRecord'];
+      }
+    } catch (e) {
+      print("getHealthRecordById:  $e");
+    }
+
+    return healthRecordMap;
+  }
+
+  static Future<String?> addHealthRecord(
+      Map<String, dynamic> healthRecord, BuildContext context) async {
+    String? result;
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiLink.uri}/api/addHealthRecord/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(healthRecord),
+      );
+      print(response.body);
+      httpErrorHandle(
+        response: response,
+        context: context,
+        onSuccess: () {
+          final decodeResponse = jsonDecode(response.body);
+          print(decodeResponse);
+          result = decodeResponse['id'];
+        },
+      );
+    } catch (e) {
+      result = null;
+      print('insertHealthRecord:$e');
+    }
+    return result;
+  }
+
   static Future<String?> insertHealthRecord(
     Map<String, dynamic> healthRecord,
     BuildContext context,
@@ -66,7 +117,7 @@ class HealthRecordService {
           },
           body: jsonEncode(healthRecord),
         );
-
+        print(response.body);
         httpErrorHandle(
           response: response,
           context: context,

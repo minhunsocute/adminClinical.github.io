@@ -9,6 +9,7 @@ import 'package:admin_clinical/services/data_service/clinical_room_service.dart'
 import 'package:admin_clinical/services/data_service/health_record_service.dart';
 import 'package:admin_clinical/services/data_service/invoice_service.dart';
 import 'package:admin_clinical/services/data_service/medicine_service.dart';
+import 'package:admin_clinical/services/data_service/notification_service.dart';
 import 'package:admin_clinical/services/data_service/patient_service.dart';
 import 'package:admin_clinical/services/data_service/service_data_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,7 @@ import '../../constants/api_link.dart';
 import '../../constants/error_handing.dart';
 import '../../models/department.dart';
 import '../../models/doctor.dart';
+import '../socket_service.dart';
 
 class DataService extends GetxController {
   DataService._privateConstructor();

@@ -9,6 +9,8 @@ import '../../constants/api_link.dart';
 import '../../models/patient.dart';
 import 'package:http/http.dart' as http;
 
+import '../socket_service.dart';
+
 class PatientService {
   static RxMap<String, Patient> listPatients = RxMap({});
   static Future<void> fetchAllPatientData() async {
@@ -30,12 +32,37 @@ class PatientService {
           Map<String, dynamic> map = extractedData[i];
           listPatients.addAll({map['_id']: Patient.fromJson(map)});
         }
+
         DataService.instance.checkFetchData.add(1);
       }
     } catch (e) {
       print('fetchAllPatientData:$e');
       rethrow;
     }
+  }
+
+  static Future<Map<String, dynamic>?> getPatientById(String id) async {
+    Map<String, dynamic>? patientMap;
+
+    try {
+      final response = await http.get(
+        Uri.parse("${ApiLink.uri}/api/getPatientById"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'id': id,
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final extractData = jsonDecode(response.body);
+        print(extractData);
+        patientMap = extractData['patient'];
+      }
+    } catch (e) {
+      print("getPatientById:  $e");
+    }
+
+    return patientMap;
   }
 
   static Future<List<String>> searchPatient(
@@ -88,6 +115,28 @@ class PatientService {
     } catch (e) {
       result = null;
       print('insertPatient:$e');
+    }
+    return result;
+  }
+
+  static Future<Patient?> searchPatientById(BuildContext context,
+      {required String id}) async {
+    Patient? result;
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiLink.uri}/api/searchPatientById/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      httpErrorHandle(
+          response: res,
+          context: context,
+          onSuccess: () {
+            result = Patient.fromJson(jsonDecode(res.body));
+          });
+    } catch (e) {
+      result = null;
     }
     return result;
   }
