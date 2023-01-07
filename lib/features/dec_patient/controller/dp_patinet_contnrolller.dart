@@ -19,6 +19,7 @@ class DpPatinetController extends GetxController {
   RxMap<String, Patient> listPatinet = RxMap({});
   RxList<Doctor1> listDoctor = RxList([]);
   RxList<Department> listDepartMent = RxList([]);
+  RxBool isLoadingCreateID = false.obs;
   @override
   void onInit() {
     super.onInit();
@@ -80,7 +81,9 @@ class DpPatinetController extends GetxController {
   }
 
   void addEntries(Map<String, Patient> newPatient) {
-    PatientService.listPatients.addAll(newPatient);
+    // PatientService.listPatients.addAll(newPatient);
+    PatientService.listPatients
+        .putIfAbsent(newPatient.keys.first, () => newPatient.values.first);
   }
 
   Future<bool> addPatientToDataBase(
@@ -96,11 +99,32 @@ class DpPatinetController extends GetxController {
     return false;
   }
 
+  Future<Map<String, dynamic>> addPatientToDataBaseReturnId(
+      Patient patient, BuildContext context) async {
+    final response = await PatientService.insertPatient(patient, context);
+    if (response != null) {
+      if (response['isSuccess']) {
+        patient.id = response['id'];
+        addEntries({patient.id: patient});
+        return {
+          'id': response['id'],
+          'check': true,
+        };
+      }
+    }
+    return {
+      'id': '',
+      'check': false,
+    };
+  }
+
+  RxBool isLoadingBooking = false.obs;
   void bookingAppointment() async {
     if (selectPatient.value.id == '') {
       Get.dialog(
           const ErrorDialog(question: "Booking Appointment", title1: "Failed"));
     } else {
+      isLoadingBooking.value = true;
       bool check = false;
       for (var item in HealthRecordService.listHealthRecord.values) {
         if (item.patientId == selectPatient.value.id &&
@@ -146,6 +170,7 @@ class DpPatinetController extends GetxController {
         Get.dialog(const ErrorDialog(
             question: "Create Health Record", title1: "Wating  Examination"));
       }
+      isLoadingBooking.value = false;
     }
   }
 
@@ -265,6 +290,31 @@ class DpPatinetController extends GetxController {
       if (item.patientId == idPatinetSearchController.text) {
         listHealthRecordSearch.add(item);
       }
+    }
+  }
+
+  // Find ID
+  final emailPatientFindController = TextEditingController();
+  final phoneNoPatientFindController = TextEditingController();
+  final yourId = "".obs;
+  List<String> dropDownItem = ['+84', '+86', '+42', '+88', '+14', '+52', '+50'];
+  late final phoneCode = dropDownItem.first.obs;
+
+  findIdFunc() async {
+    yourId.value = "";
+    String result = "";
+    for (var item in PatientService.listPatients.values) {
+      if (item.email == emailPatientFindController.text &&
+          item.phoneNumber ==
+              "${phoneCode.value} ${phoneNoPatientFindController.text}") {
+        result = item.id;
+      }
+    }
+    if (result == "") {
+      await Get.dialog(
+          const ErrorDialog(question: "Find ID", title1: "Cann't Find "));
+    } else {
+      yourId.value = result;
     }
   }
 }

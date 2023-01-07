@@ -1,6 +1,10 @@
+import 'dart:ui';
+
+import 'package:admin_clinical/constants/global_widgets/chart/line_chart_design.dart';
 import 'package:admin_clinical/constants/global_widgets/header_list_item.dart';
 import 'package:admin_clinical/constants/global_widgets/list_item.dart';
 import 'package:admin_clinical/features/clinical_room/controller/clinical_room_controller.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,19 +24,84 @@ class ClinicalRoom extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) => Column(
         children: [
-          _searchField(MediaQuery.of(context).size.width, context),
-          const SizedBox(height: 20.0),
           Expanded(
-            child: Row(children: [
+            child: Column(children: [
               Expanded(
                 flex: 5,
-                child: _listField(),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Chart View',
+                              style: TextStyle(
+                                color: AppColors.headline1TextColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22.0,
+                              ),
+                            ),
+                            const SizedBox(height: 10.0),
+                            Expanded(
+                              child: SizedBox(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 210,
+                                  child: LineChartDesign(
+                                      // maxTitle: controller.maxOfListInvoice.value
+                                      //     .toString(),
+                                      // middleTitle:
+                                      //     (controller.maxOfListInvoice.value / 2)
+                                      //         .round()
+                                      //         .toString(),
+                                      listData: [
+                                        FlSpot(0, 3),
+                                        FlSpot(1, 3.3),
+                                        FlSpot(2, 2),
+                                        FlSpot(3, 4),
+                                        FlSpot(4, 5),
+                                        FlSpot(5, 1),
+                                        FlSpot(6, 4),
+                                      ]),
+                                ),
+                              ),
+                            ),
+                          ]),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Room View',
+                              style: TextStyle(
+                                color: AppColors.headline1TextColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22.0,
+                              ),
+                            ),
+                            Container(),
+                          ]),
+                    ),
+                  ]),
+                ),
               ),
               const SizedBox(width: 20.0),
               Expanded(
-                flex: 2,
-                child: _listRoomViewField(),
-              ),
+                  flex: 6,
+                  child: Container(
+                    margin: const EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                        color: AppColors.backgroundColor,
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black26, blurRadius: 5.0)
+                        ]),
+                  )),
             ]),
           ),
         ],
@@ -133,7 +202,7 @@ class ClinicalRoom extends StatelessWidget {
                 const SizedBox(height: 20.0),
                 Expanded(
                   child: ListView(
-                    children: [
+                    children: const [
                       ClinicalPatientItem(),
                       ClinicalPatientItem(),
                       ClinicalPatientItem(),
@@ -363,11 +432,11 @@ class ClinicalPatientItem extends StatelessWidget {
         const SizedBox(height: 10.0),
         Row(
           children: [
-            Expanded(
+            const Expanded(
               flex: 1,
               child: Text(
                 '01',
-                style: const TextStyle(
+                style: TextStyle(
                   overflow: TextOverflow.ellipsis,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,

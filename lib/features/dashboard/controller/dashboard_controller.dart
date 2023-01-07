@@ -11,11 +11,13 @@ import 'package:admin_clinical/features/patient/screens/list_patients_screen.dar
 import 'package:admin_clinical/features/report/controller/report_controller.dart';
 import 'package:admin_clinical/features/report/screens/report_screen.dart';
 import 'package:admin_clinical/features/settings/screen/setting_main_screen.dart';
+import 'package:admin_clinical/routes/name_route.dart';
 import 'package:admin_clinical/services/data_service/data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/user.dart';
 import '../../../services/auth_service/auth_service.dart';
@@ -38,9 +40,21 @@ class DashboardController extends GetxController {
 
   User? get user => _user.value;
 
+  // Future<bool> checkPreferences() async{
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('x-auth-token');
+  //   if(token != )
+  // }
+
   @override
   void onReady() async {
     bool response = await setUserIfNeed();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('x-auth-token');
+    if (token == null || token == '') {
+      prefs.setString('x-auth-token', '');
+      Get.offAllNamed(PageName.loginScreen);
+    }
     SocketService.instance.connectSocket();
     if (AuthService.instance.user.type == "Doctor") {
       DataService.instance.getDoctorRole(AuthService.instance.user.id);
@@ -148,10 +162,10 @@ class DashboardController extends GetxController {
         'label': 'Payment',
         'icon': Icons.payment_outlined,
       },
-      {
-        'label': 'Clinical Room',
-        'icon': Icons.medical_services_outlined,
-      },
+      // {
+      //   'label': 'Clinical Room',
+      //   'icon': Icons.medical_services_outlined,
+      // },
       {
         'label': 'Medicine',
         'icon': FontAwesome.medkit,
@@ -202,7 +216,7 @@ class DashboardController extends GetxController {
       // DoctorExaminationScreen(),
       DoctorMainScreen(),
       InvoiceView(),
-      ClinicalRoom(),
+      // ClinicalRoom(),
       const MedicineScreen(),
       ReportScreen(),
       const SettingMainScreen(),

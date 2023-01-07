@@ -58,19 +58,19 @@ class AuthService extends ChangeNotifier {
   bool get isLogin => user.id == '' ? false : true;
 
   Future<bool> getUserData() async {
-    print('Get user data function');
     if (_user.name == "") {
       try {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('x-auth-token');
-        if (token == null) {
+        if (token == null || token == '') {
           prefs.setString('x-auth-token', '');
+          return false;
         }
         var tokenRes = await http.post(
           Uri.parse('${ApiLink.uri}/api/validToken'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'x-auth-token': token!,
+            'x-auth-token': token,
           },
         );
         var response = jsonDecode(tokenRes.body);
@@ -89,7 +89,9 @@ class AuthService extends ChangeNotifier {
     try {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
+
       await sharedPreferences.setString('x-auth-token', '');
+      await sharedPreferences.remove('x-auth-token');
       Get.offAllNamed(PageName.loginScreen);
     } catch (e) {
       // showSnackBar(context, e.toString());
@@ -117,12 +119,10 @@ class AuthService extends ChangeNotifier {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('here');
       httpErrorHandle(
         response: res,
         context: context,
         onSuccess: () async {
-          print('Login successful');
           result = true;
           SharedPreferences prefs = await SharedPreferences.getInstance();
           AuthService.instance.setUser(res.body);
@@ -131,7 +131,7 @@ class AuthService extends ChangeNotifier {
         },
       );
     } catch (e) {
-      print('signIn: $e');
+      //
     }
     return result;
   }
@@ -232,7 +232,7 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  void editProfile({
+  Future<bool> editProfile({
     required String name,
     required String email,
     required String gender,
@@ -243,6 +243,7 @@ class AuthService extends ChangeNotifier {
     required VoidCallback callBack,
     required BuildContext context,
   }) async {
+    bool result = false;
     try {
       http.Response res = await http.post(
         Uri.parse(
@@ -266,13 +267,14 @@ class AuthService extends ChangeNotifier {
         response: res,
         context: context,
         onSuccess: () async {
+          result = true;
           AuthService.instance.setUser(res.body);
-          callBack();
         },
       );
     } catch (e) {
-      callBack();
+      print(e.toString());
     }
+    return result;
   }
 
   Future<bool> changePassword({

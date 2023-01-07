@@ -67,6 +67,7 @@ class DpHomeScreen extends StatelessWidget {
   RxInt checkPage = 0.obs;
   RxBool checkShadow = true.obs;
   RxBool checkShadow1 = true.obs;
+  RxBool checkShadow2 = true.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,8 +79,16 @@ class DpHomeScreen extends StatelessWidget {
         toolbarHeight: 100,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: DpApBar(
+            openFindIDViewCallback: () {
+              checkShadow.value = false;
+              Future.delayed(const Duration(milliseconds: 400))
+                  .then((value) => checkShadow2.value = false);
+            },
+            backPageCallback: () {
+              switchPage(0);
+            },
             switchPage: switchPage,
             nexxPageCallback: () {
               checkPage.value = 0;
@@ -103,6 +112,7 @@ class DpHomeScreen extends StatelessWidget {
                 checkPage.value = 1;
                 switchPage(1);
               },
+              checkShadow2: checkShadow2.value,
               checkShadow1: checkShadow1.value,
               checkShadow: checkShadow.value,
               removeShadowCallback: () {
@@ -110,6 +120,7 @@ class DpHomeScreen extends StatelessWidget {
                 controller.listHealthRecordSearch.clear();
                 checkShadow.value = true;
                 checkShadow1.value = true;
+                checkShadow2.value = true;
               },
             ),
             (checkPage.value == 0)
